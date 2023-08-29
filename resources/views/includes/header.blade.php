@@ -207,7 +207,7 @@ opacity: 0.9; /* Initial opacity */
       dataType: 'JSON',
       success:function(response){
 console.log(response);
-          if(response.chatCount==""|| respone.chatCount===null)
+          if(response.chatCount==""|| response.chatCount===null)
           {
              document.getElementsByClassName('badge')[0].style.display="none";
              document.getElementById('notification-badge').style.display="none";

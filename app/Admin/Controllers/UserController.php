@@ -47,7 +47,7 @@ class UserController extends AdminController
    *
    * @return Grid
    */
-  protected function grid()
+  public function grid()
   {
     try {
       $grid = new Grid(new User());
@@ -399,14 +399,14 @@ class UserController extends AdminController
       $grid->model()->whereHas('attachment', function ($query) {
         $query->whereNotNull('filename');
       })->orderByDesc('created_at');
+      $jsFilePath = public_path('js/getting.js');
+      $jsContent = file_get_contents($jsFilePath);
+      Admin::script($jsContent);
       return $grid;
     } catch (\Throwable $ex) {
       Log::info($ex->getMessage());
 
 
-      $jsFilePath = public_path('js/getting.js');
-            $jsContent = file_get_contents($jsFilePath);
-            Admin::script($jsContent);
      
   
     

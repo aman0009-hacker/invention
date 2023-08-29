@@ -241,23 +241,35 @@ class CustomPageController extends AdminController
 
     public function chatCount()
     {
-        $queryData = User::join('comments', 'users.id', '=', 'comments.user_id')
-            ->where('comments.user_id', auth()->user()->id)
-            ->orderBy('comments.created_at', 'desc')
-            ->select('comments.*')
-            ->first();
-            
-            if ($queryData) {
-            $admin_id = $queryData->admin_id;
-            $chatCount = Comments::latest()
-            ->where('admin_id', $admin_id)
-            ->where('user_id', Auth::user()->id)
-            ->whereNull('read_at')
-            ->count();
-            return response()->json(["msg" => "success", 'chatCount' => $chatCount]);
-        }
+        if(Auth::check())
+        {
 
-        return response()->json(["msg" => "success", 'chatCount' => '']);
+            $queryData = User::join('comments', 'users.id', '=', 'comments.user_id')
+                ->where('comments.user_id', auth()->user()->id)
+                ->orderBy('comments.created_at', 'desc')
+                ->select('comments.*')
+                ->first();
+                
+                if ($queryData) {
+                    $admin_id = $queryData->admin_id;
+                    $chatCount = Comments::latest()
+                    ->where('admin_id', $admin_id)
+                    ->where('user_id', Auth::user()->id)
+                    ->whereNull('read_at')
+                    ->count();
+                    return response()->json(["msg" => "success", 'chatCount' => $chatCount]);
+                }
+                else
+                {
+                    return response()->json(["msg" => "success", 'chatCount' => '']);
+                }
+            }
+            else
+            {
+                
+                return response()->json(["msg" => "success", 'chatCount' => '']);
+            }
+
     }
 
     public function chatData(Request $request)
@@ -336,29 +348,29 @@ class CustomPageController extends AdminController
 
    public function admin_read_message()
    {
-    $id=user::all();
-    foreach($id as $user)
-    {
-        $notRead[]=Comments::where('user_id',$user->id)->where('admin_read_at',null)->get()->last();
-
-    }
     
-    foreach($notRead as $main)
-    {
-        if($main===null || $main=='')
+       $id=user::all();
+    dd($_SERVER['REQUEST_URI']);
+       if($_SERVER['REQUEST_URI']==="admin/auth/user")
+       {
+        dd("aman");     
+        foreach($id as $user)
         {
-            
+            $notRead[]=Comments::where('user_id',$user->id)->where('admin_read_at',null)->get()->last();
+    
+        }
+        
 
-        }
-        else
-        {
-           
-            $getmain[]=$main;
-        }
+        return response()->json(['data'=>$notRead]);
     }
     
    
-    return response()->json(['data'=>$getmain]);
+    else
+
+    {
+        return response()->json(['data'=>'']);
+    }
+   
    }
 
     public function checkurlIndex(Request $request)
@@ -378,13 +390,19 @@ class CustomPageController extends AdminController
                 if (isset($adminid) && isset($userid)) {{
                     
                     $latestData = Comments::latest()->where('admin_id', $adminid)->where('user_id', $userid)->get();
+
                     if($latestData)
                     {
-                        foreach($latestData as $single)
+                        if(header('url:admin/attachments'))
                         {
-                    
-                            $single->admin_read_at=Carbon::now();
-                            $single->save();
+
+                            foreach($latestData as $single)
+                            {
+                            
+                        
+                                $single->admin_read_at=Carbon::now();
+                                $single->save();
+                            }
                         }
                     }
 
